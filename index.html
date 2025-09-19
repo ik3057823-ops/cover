@@ -126,8 +126,9 @@
       padding: 10px 14px; border-radius: 10px; font-size: 12px; box-shadow: 0 10px 24px rgba(0,0,0,0.45);
       display: none; z-index: 60;
     }
+
     html { height: 100%; overflow: hidden; }
-</style>
+  </style>
 </head>
 <body>
   <main class="card" role="main" aria-labelledby="title">
@@ -176,6 +177,7 @@
         var _bgmEl = document.getElementById('bgm');
         console.assert(_bgmEl && _bgmEl.querySelectorAll('source').length >= 1, 'TEST FAIL: audio sources missing');
         console.assert(typeof HTMLAudioElement !== 'undefined', 'TEST FAIL: HTMLAudioElement not available');
+        console.assert(typeof window !== 'undefined' && typeof window.location !== 'undefined', 'TEST FAIL: window/location unavailable');
         // ======================================
 
         // Year stamp
@@ -245,7 +247,9 @@
         }
 
         if (startBtn) {
-          startBtn.addEventListener('click', function () { alert('Starting Fire Safety Training...'); });
+          startBtn.addEventListener('click', function () {
+            window.location.href = 'https://ik3057823-ops.github.io/personas/';
+          });
         }
 
         // Initialize icon state
