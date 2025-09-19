@@ -18,16 +18,7 @@
       --accent-600: #dc2626;  /* red-600 */
       --ring: rgba(239, 68, 68, 0.35);
     }
-    html, body {
-      margin: 0;
-      background: radial-gradient(1200px 800px at 20% 10%, rgba(239,68,68,.08), transparent 50%),
-                  radial-gradient(1000px 600px at 80% 90%, rgba(59,130,246,.08), transparent 50%),
-                  var(--bg);
-      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      color: var(--text);
-      display: grid; place-items: center;
-      padding: 80px 0 100px; /* extra space above & below */
-    }
+
     body {
       margin: 0;
       background: radial-gradient(1200px 800px at 20% 10%, rgba(239,68,68,.08), transparent 50%),
@@ -36,11 +27,11 @@
       font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       color: var(--text);
       display: grid; place-items: center;
-      padding: 40px 0 56px; /* extra space above & below */
+      padding: 24px 0 36px; /* compact vertical spacing */
     }
 
     .card {
-      width: min(92vw, 700px);
+      width: min(92vw, 820px);
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       border: 1px solid rgba(255,255,255,0.08);
       backdrop-filter: blur(6px);
@@ -53,7 +44,7 @@
     header { position: relative; overflow: hidden; }
 
     .hero {
-      height: 300px;
+      height: 340px;
       background-image: url('https://raw.githubusercontent.com/ik3057823-ops/images-5/main/fire%203.png');
       background-size: 110%; /* start slightly zoomed-in */
       background-position: center 78%; /* visible ground */
@@ -64,7 +55,7 @@
     .hero:hover, .hero:focus-visible { background-size: 100%; outline: none; }
     @media (prefers-reduced-motion: reduce) { .hero { transition: none; } }
 
-    .content { padding: 32px clamp(16px, 4vw, 28px) 36px; text-align: center; }
+    .content { padding: 24px clamp(16px, 4vw, 28px) 28px; text-align: center; }
 
     h1 {
       margin: 0 0 10px;
@@ -212,26 +203,34 @@
         function tryPlay() {
           if (!bgm) return Promise.reject(new Error('No audio element'));
           try {
-            bgm.volume = 0.12; // slightly louder but still subtle
-            bgm.muted = false; // start unmuted
+            bgm.muted = false; // ensure unmuted from the start
+            bgm.volume = 0.15; // modest level
             return bgm.play();
           } catch (e) {
             return Promise.reject(e);
           }
         }
 
+        // Extra test: tryPlay exists
+        console.assert(typeof tryPlay === 'function', 'TEST FAIL: tryPlay function missing');
+
         // Listen for load/error events to help debug
         if (bgm) {
           bgm.addEventListener('error', function(){ showToast('Audio failed to load. Check URL or CORS.'); });
           bgm.addEventListener('playing', function(){ showToast('Audio playing'); setFab(); });
+          bgm.addEventListener('play', function(){ setFab(); });
           bgm.addEventListener('pause', function(){ setFab(); });
         }
 
-        // Attempt to auto start; if blocked, start on first user interaction anywhere
+        // Attempt to auto start unmuted; if blocked, start on first user interaction anywhere
+        bgm.muted = false; // request unmuted
         tryPlay().catch(function () {
-          var resume = function () { tryPlay().catch(function(){}); document.removeEventListener('pointerdown', resume); };
+          var resume = function () {
+            tryPlay().catch(function(){});
+            document.removeEventListener('pointerdown', resume);
+          };
           document.addEventListener('pointerdown', resume, { once: true });
-        });
+        }).finally(setFab);
 
         if (audioFab) {
           audioFab.addEventListener('click', function () {
